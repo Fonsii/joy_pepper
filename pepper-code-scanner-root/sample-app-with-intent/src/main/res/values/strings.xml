@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Code Scanner Sample Application (Intent)</string>
-    <string name="instructions">Touch my screen to start scanning</string>
+    <string name="location_text">Save location</string>
+    <string name="barcode_text">Scan and go to location</string>
     <!-- Autonomous abilities -->
     <string name="hold">Hold</string>
     <string name="release">Release</string>
@@ -24,7 +25,7 @@
     <!-- Go to world -->
     <string name="save">Save</string>
     <string name="go_to_text">Go to</string>
-    <string name="location">Location</string>
+    <string name="location">Location name</string>
 
     <!-- Follow human -->
     <string name="follow">Follow</string>

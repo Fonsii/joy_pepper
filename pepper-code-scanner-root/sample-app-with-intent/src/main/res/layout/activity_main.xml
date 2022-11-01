@@ -7,48 +7,73 @@
     android:id="@+id/mainLayout"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:adjustViewBounds="true"
-        android:src="@drawable/logo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:adjustViewBounds="true"
-        android:src="@drawable/button"
-        app:layout_constraintBottom_toTopOf="@+id/textViewInstructions"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/textViewInstructions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="48dp"
-        android:fontFamily="@font/din_regular_webfont"
-        android:text="@string/instructions"
-        android:textColor="@color/textGrey"
-        android:textSize="40sp"
-        app:fontFamily="@font/din_regular_webfont"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        <LinearLayout
+            android:id="@+id/locationLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+
+            <EditText
+                android:id="@+id/add_item_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="@string/location"
+                tools:layout_editor_absoluteX="193dp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/save_button"
+                app:layout_constraintStart_toEndOf="@+id/save_button"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save"
+                tools:layout_editor_absoluteX="44dp"
+                android:layout_marginBottom="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/goto_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/add_item_edit" />
+
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/scanLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/barcode_image"
+                android:layout_width="117dp"
+                android:layout_height="122dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/button" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/barcode_text"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
