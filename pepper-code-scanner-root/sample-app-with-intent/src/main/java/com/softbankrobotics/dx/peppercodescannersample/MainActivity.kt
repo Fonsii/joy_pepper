@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
         add_item_edit.text.clear()
         // Save location only if new.
         if (location.isNotEmpty() && !savedLocations.containsKey(location)) {
-            displayLine("Location added: $location", ConversationItemType.INFO_LOG)
+            //displayLine("Location added: $location", ConversationItemType.INFO_LOG)
             saveLocation(location)
         }
     }
@@ -110,31 +110,34 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        Log.e(TAG, "ENTRA ${requestCode} : ${BARCODE_READER_ACTIVITY_REQUEST} : ${resultCode} : ${data}")
         if (resultCode != RESULT_OK) {
             Log.e(TAG, "Scan error")
             return
         }
 
         if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
+            Log.e(TAG, "ENTRA 2")
             val barcode: Barcode? =
                 data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE)
-            val location = "Scan result: ${barcode?.rawValue}"
+            val location = barcode?.rawValue
             val found = savedLocations.containsKey(location)
             var sayText: String = "Location scanned. Going to location ${location}."
 
             if (!found) {
                 sayText = "I'm sorry. I don't remember saving a location for ${location}."
             }
-            val say = SayBuilder.with(qiContext)
-                .withText(sayText)
-                .build()
-
-            say.run()
+            //val say = SayBuilder.with(this.qiContext)
+            //    .withText(sayText)
+            //    .build()
+            Log.e(TAG, sayText)
+            //say.run()
             if (!found){
                 return
             }
-            goToLocation(location)
+            if (location != null) {
+                goToLocation(location)
+            }
 
             /* Creo que esto no lo necesitamos
             val launchIntent = Intent(this, ResultActivity::class.java)
@@ -147,21 +150,30 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
     private fun goToLocation(location: String) {
         // Get the FreeFrame from the saved locations.
         val freeFrame = savedLocations[location]
-
+        Log.e(TAG, "$freeFrame")
         // Extract the Frame asynchronously.
         val frameFuture = freeFrame?.async()?.frame()
+        Log.e(TAG, "$frameFuture")
         frameFuture?.andThenCompose { frame ->
             // Create a GoTo action.
-            val goTo = GoToBuilder.with(qiContext)
+            Log.e(TAG, "ENTRA 3")
+            Log.e(TAG, "this.qiContext ${this.qiContext}")
+            while (this.qiContext == null) {
+                Log.e(TAG, "Waiting for focus")
+            }
+            val x = this.qiContext!!.focus
+            x.take()
+            val goTo = GoToBuilder.with(this.qiContext)
                 .withFrame(frame)
                 .build()
                 .also { this.goTo = it }
-
+            Log.e(TAG, "GOTO ${goTo}")
+            Log.e(TAG, "GOTO is null ${goTo == null}")
             // Display text when the GoTo action starts.
             goTo.addOnStartedListener {
                 val message = "Moving..."
                 Log.i(TAG, message)
-                displayLine(message, ConversationItemType.INFO_LOG)
+                //displayLine(message, ConversationItemType.INFO_LOG)
             }
             this.goTo = goTo
 
@@ -181,7 +193,7 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
     private fun waitForInstructions() {
         val message = "Waiting for instructions..."
         Log.i(TAG, message)
-        displayLine(message, ConversationItemType.INFO_LOG)
+        //displayLine(message, ConversationItemType.INFO_LOG)
         runOnUiThread {
             save_button.isEnabled = true
         }
@@ -198,25 +210,25 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
         Log.i(TAG, "Focus gained.")
         // Store the provided QiContext and services.
         this.qiContext = qiContext
-
         // Bind the conversational events to the view.
-        val conversationStatus = qiContext.conversation.status(qiContext.robotContext)
-        conversationBinder = conversation_view.bindConversationTo(conversationStatus)
+        //val conversationStatus = qiContext.conversation.status(qiContext.robotContext)
+        //conversationBinder = conversation_view.bindConversationTo(conversationStatus)
 
         actuation = qiContext.actuation
         mapping = qiContext.mapping
-
+        /*
         val say = SayBuilder.with(qiContext)
             .withText("Hi. I can remember locations and go to them by scanning a QR code.")
             .build()
 
         say.run()
-
+        */
         waitForInstructions()
     }
 
     override fun onRobotFocusLost() {
-        Log.i(TAG, "Focus lost.")
+        Log.e(TAG, "Focus lost.")
+        /*
         // Remove the QiContext.
         qiContext = null
 
@@ -224,6 +236,7 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
 
         // Remove on started listeners from the GoTo action.
         goTo?.removeAllOnStartedListeners()
+        */
     }
 
     override fun onRobotFocusRefused(reason: String) {
