@@ -8,17 +8,17 @@ import androidx.appcompat.app.AppCompatActivity
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
-import com.aldebaran.qi.sdk.`object`.actuation.Actuation
-import com.aldebaran.qi.sdk.`object`.actuation.FreeFrame
-import com.aldebaran.qi.sdk.`object`.actuation.GoTo
-import com.aldebaran.qi.sdk.`object`.actuation.Mapping
+import com.aldebaran.qi.sdk.`object`.actuation.*
 import com.aldebaran.qi.sdk.builder.GoToBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.builder.TransformBuilder
 import com.google.android.gms.vision.barcode.Barcode
 import com.softbankrobotics.dx.peppercodescanner.BarcodeReaderActivity
+import com.softbankrobotics.dx.pepperextras.actuation.StubbornGoTo
+import com.softbankrobotics.dx.pepperextras.actuation.StubbornGoToBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.conversation_layout.conversation_view
+import java.util.concurrent.Future
 
 
 class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
@@ -137,13 +137,9 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
             }
             if (location != null) {
                 goToLocation(location)
-            }
 
-            /* Creo que esto no lo necesitamos
-            val launchIntent = Intent(this, ResultActivity::class.java)
-            launchIntent.putExtra(KEY_MESSAGE, message)
-            startActivity(launchIntent)
-             */
+                goToLocation("base")
+            }
         }
     }
 
@@ -154,39 +150,23 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
         // Extract the Frame asynchronously.
         val frameFuture = freeFrame?.async()?.frame()
         Log.e(TAG, "$frameFuture")
-        frameFuture?.andThenCompose { frame ->
-            // Create a GoTo action.
-            Log.e(TAG, "ENTRA 3")
-            Log.e(TAG, "this.qiContext ${this.qiContext}")
-            while (this.qiContext == null) {
-                Log.e(TAG, "Waiting for focus")
-            }
-            val x = this.qiContext!!.focus
-            x.take()
-            val goTo = GoToBuilder.with(this.qiContext)
-                .withFrame(frame)
-                .build()
-                .also { this.goTo = it }
+        frameFuture?.andThenCompose{ frame ->
+            val goTo = StubbornGoToBuilder.with(qiContext!!)
+                .withFinalOrientationPolicy(OrientationPolicy.ALIGN_X)
+                .withMaxRetry(10)
+                .withMaxSpeed(0.5f)
+                .withMaxDistanceFromTargetFrame(0.3)
+                .withWalkingAnimationEnabled(true)
+                .withFrame(frame).buildAsync()
+
+
             Log.e(TAG, "GOTO ${goTo}")
             Log.e(TAG, "GOTO is null ${goTo == null}")
             // Display text when the GoTo action starts.
-            goTo.addOnStartedListener {
-                val message = "Moving..."
-                Log.i(TAG, message)
-                //displayLine(message, ConversationItemType.INFO_LOG)
-            }
-            this.goTo = goTo
-
             // Execute the GoTo action asynchronously.
-            goTo.async().run()
-        }?.thenConsume {
-            if (it.isSuccess) {
-                Log.i(TAG, "Location reached: $location")
-                waitForInstructions()
-            } else if (it.hasError()) {
-                Log.e(TAG, "Go to location error", it.error)
-                waitForInstructions()
-            }
+            goTo
+        }?.andThenConsume {
+            it.run()
         }
     }
 

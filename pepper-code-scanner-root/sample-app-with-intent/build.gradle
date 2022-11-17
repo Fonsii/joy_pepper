@@ -3,7 +3,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
-
+task wrapper(type: Wrapper){
+    gradleVersion = '7.2'
+}
 android {
     compileSdkVersion 30
 
@@ -46,4 +48,5 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "com.aldebaran:qisdk:$qisdk_version"
     implementation "com.aldebaran:qisdk-design:$qisdk_version"
+    implementation 'com.github.softbankrobotics-labs:pepper-extras:master-SNAPSHOT'
 }
