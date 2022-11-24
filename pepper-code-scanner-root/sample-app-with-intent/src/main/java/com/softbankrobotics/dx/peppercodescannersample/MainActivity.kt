@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
             }
             if (location != null) {
                 goToLocation(location)
-
+                Log.e("GoTo", "Location reached. Heading back to base.")
                 goToLocation("base")
             }
         }
@@ -146,28 +146,15 @@ class MainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
     private fun goToLocation(location: String) {
         // Get the FreeFrame from the saved locations.
         val freeFrame = savedLocations[location]
-        Log.e(TAG, "$freeFrame")
-        // Extract the Frame asynchronously.
-        val frameFuture = freeFrame?.async()?.frame()
-        Log.e(TAG, "$frameFuture")
-        frameFuture?.andThenCompose{ frame ->
-            val goTo = StubbornGoToBuilder.with(qiContext!!)
-                .withFinalOrientationPolicy(OrientationPolicy.ALIGN_X)
-                .withMaxRetry(10)
-                .withMaxSpeed(0.5f)
-                .withMaxDistanceFromTargetFrame(0.3)
-                .withWalkingAnimationEnabled(true)
-                .withFrame(frame).buildAsync()
 
-
-            Log.e(TAG, "GOTO ${goTo}")
-            Log.e(TAG, "GOTO is null ${goTo == null}")
-            // Display text when the GoTo action starts.
-            // Execute the GoTo action asynchronously.
-            goTo
-        }?.andThenConsume {
-            it.run()
-        }
+        val goTo = StubbornGoToBuilder.with(qiContext!!)
+            .withFinalOrientationPolicy(OrientationPolicy.ALIGN_X)
+            .withMaxRetry(10)
+            .withMaxSpeed(0.5f)
+            .withMaxDistanceFromTargetFrame(0.3)
+            .withWalkingAnimationEnabled(true)
+            .withFrame(freeFrame!!.frame()).build()
+        goTo.run()
     }
 
     private fun waitForInstructions() {
